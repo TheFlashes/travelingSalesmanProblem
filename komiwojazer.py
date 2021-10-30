@@ -1,7 +1,9 @@
-
+from src.point import Point
+from src.drawMatrix import drawMatrix
 from random import randint
 from random import seed
 import pygame
+
 
 seed(1)
 
@@ -18,28 +20,39 @@ class Komiwojazer:
         self.clock = pygame.time.Clock()
 
         pygame.font.init()
-        self.font = pygame.font.SysFont('Arial', 17)
+        self.font = pygame.font.SysFont('Verdana', 17)
 
+        self.points = []
+        self.distances = []
         self.randomPoints()
 
         while 1:
             self.gameLoop()
-    
+
     def randomPoints(self):
         self.points = []
         for i in range(0, self.noOfPoints):
-            self.points.append({
-                "index": i,
-                "x": randint(0, self.width),
-                "y": randint(0, self.height)
-            })
+            self.points.append(Point(
+                index=i,
+                x=randint(0, self.width),
+                y=randint(0, self.width)
+            ))
+        self.calculateDistances()
 
-    def drawPoint(self, point):
-        pygame.draw.circle(self.screen, (255, 255, 255), (point['x'] + 50, point['y']+ 50), 10)
+    def calculateDistances(self):
+        self.distances = []
+        for x in range(0, len(self.points)):
+            row = []
+            for y in range(0, len(self.points)):
+                row.append(self.distanceBetweenPoints(
+                    self.points[x],
+                    self.points[y]
+                ))
+            self.distances.append(row)
+        drawMatrix(self.noOfPoints, self.distances)
 
-        pointNo = self.font.render("{}".format(point['index']), False, (0, 0, 0))
-        if point['index'] < 10: self.screen.blit(pointNo, (point['x'] + 47, point['y'] + 40))
-        else: self.screen.blit(pointNo, (point['x'] + 42, point['y'] + 40))
+    def distanceBetweenPoints(self, point1, point2):
+        return ((point1.x - point2.x)**2 + (point1.y - point2.y)**2)**.5
 
     def gameLoop(self):
         for event in pygame.event.get():
@@ -49,12 +62,16 @@ class Komiwojazer:
                 if event.key == pygame.K_r:
                     self.randomPoints()
 
-        self.screen.fill((0, 0, 255))
+        self.screen.fill((2, 119, 189))
 
         pygame.draw.rect(self.screen, (255, 255, 255), (50, 50, self.width, self.height), 1)
 
         for point in self.points:
-            self.drawPoint(point)
+            point.draw(self.screen, self.font)
+
+        debugInfo = self.font.render("Odległość między 0 i 1: {}".format(
+            self.distanceBetweenPoints(self.points[0], self.points[1])), False, (0, 0, 0))
+        self.screen.blit(debugInfo, (0, 0))
 
         pygame.display.flip()
 
