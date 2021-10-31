@@ -2,6 +2,7 @@ from src.point import Point
 from src.drawMatrix import drawMatrix
 from random import randint
 from random import seed
+import time
 import pygame
 
 
@@ -13,7 +14,6 @@ class Komiwojazer:
         self.width, self.height, self.noOfPoints = width, height, noOfPoints
 
         pygame.init()
-
         pygame.display.set_caption('Jak będzie w grafach hamiltonowskich? - sekcja Komiwojażera')
 
         self.screen = pygame.display.set_mode((self.width + 100, self.height + 100))
@@ -22,12 +22,26 @@ class Komiwojazer:
         pygame.font.init()
         self.font = pygame.font.SysFont('Verdana', 17)
 
-        self.points = []
-        self.distances = []
-        self.randomPoints()
+        self.reset()
 
         while 1:
             self.gameLoop()
+
+    #=============================Wstępne obliczenia=============================
+    def reset(self):
+        print("\n\n\n\n")
+        self.points = []
+        self.distances = []
+        self.randomPoints()
+        self.calculateDistances()
+        self.heldKrapParents = {}
+        self.pointToCalcuate = []
+        self.route = []
+        for i in range(0, self.noOfPoints):
+            self.heldKrapParents[i] = {}
+        for i in range(1, self.noOfPoints):
+            self.pointToCalcuate.append(i)
+        drawMatrix(self.noOfPoints, self.distances)
 
     def randomPoints(self):
         self.points = []
@@ -37,7 +51,6 @@ class Komiwojazer:
                 x=randint(0, self.width),
                 y=randint(0, self.width)
             ))
-        self.calculateDistances()
 
     def calculateDistances(self):
         self.distances = []
@@ -49,33 +62,88 @@ class Komiwojazer:
                     self.points[y]
                 ))
             self.distances.append(row)
-        drawMatrix(self.noOfPoints, self.distances)
 
     def distanceBetweenPoints(self, point1, point2):
         return ((point1.x - point2.x)**2 + (point1.y - point2.y)**2)**.5
+    #=============================Wstępne obliczenia=============================
 
+    #=============================Właściwy algorytm==============================
+    def startAlgorithm(self):
+        print(f"Obliczanie najkrótszej drogi miedzy {self.noOfPoints} punktami...")
+        tic = time.perf_counter()
+        komiwojazer_data = self.heldKrapFun(0, self.pointToCalcuate)
+        self.findRoute(0, self.pointToCalcuate)
+        toc = time.perf_counter()
+        print(f"Najkrótsza droga wynosi: {komiwojazer_data}\nNajkrótsza ścieżka: {self.route}\nObliczenia zajęły: {toc - tic:0.4f}s")
+
+    def heldKrapFun(self, startPoint, pointsCollection):
+        parentStartID = startPoint
+        parentArrayID = f"{pointsCollection}"
+
+        if len(pointsCollection) == 0:
+            self.heldKrapParents[parentStartID][parentArrayID] = 0
+            return self.distances[0][startPoint]
+        else:
+            distances = []
+            for idx, pt in enumerate(pointsCollection):
+                heldKrapResult = self.heldKrapFun(pt, pointsCollection[:idx] + pointsCollection[idx+1 :])
+                distances.append(
+                    self.distances[pt][startPoint] +
+                    heldKrapResult
+                )
+            min_value = min(distances)
+            parent = pointsCollection[distances.index(min_value)]
+            self.heldKrapParents[parentStartID][parentArrayID] = parent
+            return min_value
+
+    def findRoute(self, startPoint, pToCalculate):
+        if pToCalculate == []:
+            self.route.append(0)
+        else:
+            lastParent  = self.heldKrapParents[startPoint][f"{pToCalculate}"]
+            self.route.append(lastParent)
+            pToCalculate.remove(lastParent)
+            self.findRoute(lastParent, pToCalculate)
+    #=============================Właściwy algorytm==============================
+
+    #==============================Pętla z ekranem===============================
     def gameLoop(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    self.randomPoints()
+                    self.reset()
+                if event.key == pygame.K_RETURN:
+                    self.startAlgorithm()
+                if event.key == pygame.K_UP:
+                    self.noOfPoints += 1
+                    self.reset()
+                if event.key == pygame.K_DOWN:
+                    if self.noOfPoints > 1: self.noOfPoints -= 1
+                    self.reset()
 
         self.screen.fill((2, 119, 189))
 
-        pygame.draw.rect(self.screen, (255, 255, 255), (50, 50, self.width, self.height), 1)
+        infoText = self.font.render(f"Liczba punktów: {self.noOfPoints}", False, (255, 255, 255))
+        self.screen.blit(infoText, (5, 5))
+
+        pygame.draw.rect(self.screen, (255, 255, 255), (50, 50, self.width, self.height), 2)
+
+        for idx, r in enumerate(self.route):
+            secondIndex = idx+1 if idx < len(self.route)-1 else 0
+            pygame.draw.line(self.screen, (255, 255, 255), 
+                (self.points[r].x + 50, self.points[r].y + 50), 
+                (self.points[self.route[secondIndex]].x + 50, self.points[self.route[secondIndex]].y + 50),
+                width=1
+            )
 
         for point in self.points:
             point.draw(self.screen, self.font)
 
-        debugInfo = self.font.render("Odległość między 0 i 1: {}".format(
-            self.distanceBetweenPoints(self.points[0], self.points[1])), False, (0, 0, 0))
-        self.screen.blit(debugInfo, (0, 0))
-
         pygame.display.flip()
-
         self.clock.tick(40)
+    #==============================Pętla z ekranem===============================
 
 
 komiwojazer = Komiwojazer(
