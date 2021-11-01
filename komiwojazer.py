@@ -1,13 +1,8 @@
 from src.point import Point
 from src.drawMatrix import drawMatrix
 from random import randint
-from random import seed
 import time
 import pygame
-
-
-seed(1)
-
 
 class Komiwojazer:
     def __init__(self, width, height, noOfPoints):
@@ -37,6 +32,7 @@ class Komiwojazer:
         self.heldKrapParents = {}
         self.pointToCalcuate = []
         self.route = []
+        self.noOfOperations = 0
         for i in range(0, self.noOfPoints):
             self.heldKrapParents[i] = {}
         for i in range(1, self.noOfPoints):
@@ -74,14 +70,23 @@ class Komiwojazer:
         komiwojazer_data = self.heldKrapFun(0, self.pointToCalcuate)
         self.findRoute(0, self.pointToCalcuate)
         toc = time.perf_counter()
-        print(f"Najkrótsza droga wynosi: {komiwojazer_data}\nNajkrótsza ścieżka: {self.route}\nObliczenia zajęły: {toc - tic:0.4f}s")
+        print(f"Najkrótsza droga wynosi: {komiwojazer_data}\nNajkrótsza ścieżka: {self.route}\nObliczenia zajęły: {toc - tic:0.4f}s\nLiczba operacji: {self.noOfOperations}")
 
     def heldKrapFun(self, startPoint, pointsCollection):
         parentStartID = startPoint
         parentArrayID = f"{pointsCollection}"
 
+        if parentStartID in self.heldKrapParents:
+            if parentArrayID in self.heldKrapParents[parentStartID]:
+                return self.heldKrapParents[parentStartID][parentArrayID]["distance"]
+
+        self.noOfOperations += 1
+
         if len(pointsCollection) == 0:
-            self.heldKrapParents[parentStartID][parentArrayID] = 0
+            self.heldKrapParents[parentStartID][parentArrayID] = {
+                "parent": 0,
+                "distance": self.distances[0][startPoint]
+            }
             return self.distances[0][startPoint]
         else:
             distances = []
@@ -93,14 +98,17 @@ class Komiwojazer:
                 )
             min_value = min(distances)
             parent = pointsCollection[distances.index(min_value)]
-            self.heldKrapParents[parentStartID][parentArrayID] = parent
+            self.heldKrapParents[parentStartID][parentArrayID] = {
+                "parent": parent,
+                "distance": min_value
+            }
             return min_value
 
     def findRoute(self, startPoint, pToCalculate):
         if pToCalculate == []:
             self.route.append(0)
         else:
-            lastParent  = self.heldKrapParents[startPoint][f"{pToCalculate}"]
+            lastParent  = self.heldKrapParents[startPoint][f"{pToCalculate}"]['parent']
             self.route.append(lastParent)
             pToCalculate.remove(lastParent)
             self.findRoute(lastParent, pToCalculate)
