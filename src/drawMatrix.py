@@ -15,7 +15,7 @@ def drawMatrix(noOfPoints, distances):
         output += "\n"
         return output
 
-    output = "Dystanse między punktami:\n   |"
+    output = "Distance between points:\n   |"
 
     for i in range(0, noOfPoints):
         output += "{}|".format(getS(i))

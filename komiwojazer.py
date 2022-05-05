@@ -9,7 +9,7 @@ class Komiwojazer:
         self.width, self.height, self.noOfPoints = width, height, noOfPoints
 
         pygame.init()
-        pygame.display.set_caption('Jak będzie w grafach hamiltonowskich? - sekcja Komiwojażera')
+        pygame.display.set_caption('The traveling salesman problem')
 
         self.screen = pygame.display.set_mode((self.width + 100, self.height + 100))
         self.clock = pygame.time.Clock()
@@ -65,12 +65,12 @@ class Komiwojazer:
 
     #=============================Właściwy algorytm==============================
     def startAlgorithm(self):
-        print(f"Obliczanie najkrótszej drogi miedzy {self.noOfPoints} punktami...")
+        print(f"Calculation of the shortest distance between {self.noOfPoints} points...")
         tic = time.perf_counter()
         komiwojazer_data = self.heldKrapFun(0, self.pointToCalcuate)
         self.findRoute(0, self.pointToCalcuate)
         toc = time.perf_counter()
-        print(f"Najkrótsza droga wynosi: {komiwojazer_data}\nNajkrótsza ścieżka: {self.route}\nObliczenia zajęły: {toc - tic:0.4f}s\nLiczba operacji: {self.noOfOperations}")
+        print(f"The shortest route is: {komiwojazer_data}\nThe shortest path: {self.route}\nThe calculations took {toc - tic:0.4f} seconds\nNumber of operations: {self.noOfOperations}")
 
     def heldKrapFun(self, startPoint, pointsCollection):
         parentStartID = startPoint
@@ -133,7 +133,7 @@ class Komiwojazer:
 
         self.screen.fill((2, 119, 189))
 
-        infoText = self.font.render(f"Liczba punktów: {self.noOfPoints}", False, (255, 255, 255))
+        infoText = self.font.render(f"Number of points: {self.noOfPoints}", False, (255, 255, 255))
         self.screen.blit(infoText, (5, 5))
 
         pygame.draw.rect(self.screen, (255, 255, 255), (50, 50, self.width, self.height), 2)
