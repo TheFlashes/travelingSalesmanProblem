@@ -65,12 +65,12 @@ class Komiwojazer:
 
     #=============================Właściwy algorytm==============================
     def startAlgorithm(self):
-        print(f"Calculation of the shortest distance between {self.noOfPoints} points...")
+        print(f"Calculation of the shortest path between {self.noOfPoints} points...")
         tic = time.perf_counter()
         komiwojazer_data = self.heldKrapFun(0, self.pointToCalcuate)
         self.findRoute(0, self.pointToCalcuate)
         toc = time.perf_counter()
-        print(f"The shortest route is: {komiwojazer_data}\nThe shortest path: {self.route}\nThe calculations took {toc - tic:0.4f} seconds\nNumber of operations: {self.noOfOperations}")
+        print(f"The shortest distance is: {komiwojazer_data}\nThe shortest path: {self.route}\nThe calculations took {toc - tic:0.4f} seconds\nNumber of operations: {self.noOfOperations}")
 
     def heldKrapFun(self, startPoint, pointsCollection):
         parentStartID = startPoint
