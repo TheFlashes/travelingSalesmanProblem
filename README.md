@@ -6,6 +6,6 @@ The script draws the selected number of points and then calculates the shortest 
 * Enter - Start calculating
 
 ## Example
-![img1](https://user-images.githubusercontent.com/22982835/166908017-8577053e-b294-4197-881d-426a834da79b.png)
+![wsb1](https://user-images.githubusercontent.com/22982835/166909658-48839ffc-1985-4c58-83fc-eeab9a0c38a0.png)
 ### Solution calculated by the script
-![img2](https://user-images.githubusercontent.com/22982835/166908032-a3282e9a-7c05-4abc-b46e-c8fe200e7402.png)
+![wsb2](https://user-images.githubusercontent.com/22982835/166909673-e3f7ab01-0dfa-4b3e-80ba-ba784ca64963.png)
